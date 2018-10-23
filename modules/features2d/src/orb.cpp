@@ -697,7 +697,12 @@ public:
 
     // Compute the ORB_Impl features and descriptors on an image
     void detectAndCompute( InputArray image, InputArray mask, std::vector<KeyPoint>& keypoints,
-                     OutputArray descriptors, bool useProvidedKeypoints=false ) CV_OVERRIDE;
+                     OutputArray descriptors, bool useProvidedKeypoints=false) CV_OVERRIDE;
+
+
+    void detectAndComputeWithPyramid( InputArray image, InputArray mask, std::vector<KeyPoint>& keypoints,
+                     OutputArray descriptors, std::vector<Mat> *_imagePyramid,
+                     bool useProvidedKeypoints=false);
 
 protected:
 
@@ -944,7 +949,6 @@ static void computeKeyPoints(const Mat& imagePyramid,
     }
 }
 
-
 /** Compute the ORB_Impl features and descriptors on an image
  * @param img the image to compute the features and descriptors on
  * @param mask the mask to apply
@@ -955,7 +959,24 @@ static void computeKeyPoints(const Mat& imagePyramid,
  */
 void ORB_Impl::detectAndCompute( InputArray _image, InputArray _mask,
                                  std::vector<KeyPoint>& keypoints,
-                                 OutputArray _descriptors, bool useProvidedKeypoints )
+                                 OutputArray _descriptors,
+                                 bool useProvidedKeypoints )
+{
+    detectAndComputeWithPyramid(_image, _mask, keypoints, _descriptors, nullptr, useProvidedKeypoints);
+}
+
+/** Compute the ORB_Impl features and descriptors on an image
+ * @param img the image to compute the features and descriptors on
+ * @param mask the mask to apply
+ * @param keypoints the resulting keypoints
+ * @param descriptors the resulting descriptors
+ * @param do_keypoints if true, the keypoints are computed, otherwise used as an input
+ * @param do_descriptors if true, also computes the descriptors
+ */
+void ORB_Impl::detectAndComputeWithPyramid( InputArray _image, InputArray _mask,
+                                 std::vector<KeyPoint>& keypoints,
+                                 OutputArray _descriptors, std::vector<Mat> *_imagePyramid,
+                                 bool useProvidedKeypoints )
 {
     CV_INSTRUMENT_REGION()
 
@@ -1081,6 +1102,9 @@ void ORB_Impl::detectAndCompute( InputArray _image, InputArray _mask,
             if( !mask.empty() )
                 copyMakeBorder(mask, extMask, border, border, border, border,
                                BORDER_CONSTANT+BORDER_ISOLATED);
+        }
+        if (_imagePyramid != nullptr) {
+            _imagePyramid->push_back(currImg.clone());
         }
         if (level > firstLevel)
         {

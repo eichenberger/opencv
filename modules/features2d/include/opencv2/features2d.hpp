@@ -198,7 +198,7 @@ public:
     CV_WRAP virtual void detectAndCompute( InputArray image, InputArray mask,
                                            CV_OUT std::vector<KeyPoint>& keypoints,
                                            OutputArray descriptors,
-                                           bool useProvidedKeypoints=false );
+                                           bool useProvidedKeypoints=false);
 
     CV_WRAP virtual int descriptorSize() const;
     CV_WRAP virtual int descriptorType() const;
@@ -356,6 +356,12 @@ public:
     CV_WRAP virtual void setFastThreshold(int fastThreshold) = 0;
     CV_WRAP virtual int getFastThreshold() const = 0;
     CV_WRAP virtual String getDefaultName() const CV_OVERRIDE;
+
+    CV_WRAP virtual void detectAndComputeWithPyramid( InputArray image, InputArray mask,
+                                           CV_OUT std::vector<KeyPoint>& keypoints,
+                                           OutputArray descriptors,
+                                           std::vector<Mat> *_imagePyramid,
+                                           bool useProvidedKeypoints=false) = 0;
 };
 
 /** @brief Maximally stable extremal region extractor
